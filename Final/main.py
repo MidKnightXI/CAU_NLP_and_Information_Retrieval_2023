@@ -85,7 +85,46 @@ async def analyze(ctx, message_id):
     else:
         reply = "That sounds neutral."
 
-        await ctx.send(reply)
+    await ctx.send(reply)
+
+@bot.command()
+async def analyze_thread(ctx, thread_id):
+    """Analyze the polarity of a thread"""
+    try:
+        channel = await bot.fetch_channel(int(thread_id))
+    except discord.NotFound:
+        await ctx.send("Thread not found.")
+        return
+    except ValueError:
+        await ctx.send("Invalid thread ID.")
+        return
+
+    messages = []
+    async for message in channel.history(limit=None):
+        messages.append(message)
+
+    sentiments = []
+    for message in messages:
+        text = message.content
+        sentiment = TextBlob(text).sentiment
+        sentiments.append(sentiment.polarity)
+
+    if len(sentiments) == 0:
+        await ctx.send("The conversation thread has no valid messages.")
+        return
+
+    average_polarity = sum(sentiments) / len(sentiments)
+    print(f"thread polarity {thread_id}: {average_polarity}")
+
+    if average_polarity > 0:
+        reply = "The conversation thread has a positive sentiment!"
+    elif average_polarity < 0:
+        reply = "The conversation thread has a negative sentiment!"
+    else:
+        reply = "The conversation thread has a neutral sentiment."
+
+    await ctx.send(reply)
+
 
 bot_token = getenv('DISCORD_BOT_TOKEN')
 bot.run(bot_token)
