@@ -53,25 +53,35 @@ async def send_insult_notification(message):
 
 @bot.command()
 async def analyze(ctx, message_id):
+    """
+    Retrieve the message from the given ID and analyze its polarity
+
+    Send the polarity type of the message
+    """
+
     try:
         message = await ctx.channel.fetch_message(int(message_id))
-        text = message.content
-        sentiment = TextBlob(text).sentiment
-
-        # Sentiment polarity ranges from -1 to 1 (-1 being negative, 1 being positive)
-        polarity = sentiment.polarity
-
-        if polarity > 0:
-            reply = "That sounds positive!"
-        elif polarity < 0:
-            reply = "That sounds negative!"
-        else:
-            reply = "That sounds neutral."
-
-        await ctx.send(reply)
-
     except discord.NotFound:
         await ctx.send("Message not found.")
+        return
+    except ValueError:
+        await ctx.send("Invalid message ID.")
+        return
+
+    text = message.content
+    sentiment = TextBlob(text).sentiment
+
+    # Sentiment polarity ranges from -1 to 1 (-1 being negative, 1 being positive)
+    polarity = sentiment.polarity
+
+    if polarity > 0:
+        reply = "That sounds positive!"
+    elif polarity < 0:
+        reply = "That sounds negative!"
+    else:
+        reply = "That sounds neutral."
+
+        await ctx.send(reply)
 
 bot_token = getenv('DISCORD_BOT_TOKEN')
 bot.run(bot_token)
