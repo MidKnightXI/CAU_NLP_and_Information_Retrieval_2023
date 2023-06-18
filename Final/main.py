@@ -31,7 +31,9 @@ async def on_message(message):
     await bot.process_commands(message)
 
 def has_insults(text):
-    """Check if the text contains any profane words or phrases"""
+    """
+    Check if the text contains any profane words or phrases
+    """
     proba = predict_prob([text])[0]
 
     print(f"Probability for `{text}`: {proba}")
@@ -42,12 +44,14 @@ def has_insults(text):
     return False
 
 async def send_insult_notification(message):
-    """Send a notification message to the channel where the message was deleted"""
+    """
+    Send a notification message to the channel where the message was deleted
+    """
     channel = message.channel
 
     author = message.author.mention
     content = message.content
-    notification = f"Message from {author} deleted:\n\n{content}"
+    notification = f"**Message from {author} deleted:**\n~~{content}~~"
     await channel.send(notification)
 
 
