@@ -30,7 +30,7 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-def has_insults(text):
+def has_insults(text: str) -> bool:
     """
     Check if the text contains any profane words or phrases
     """
@@ -54,8 +54,19 @@ async def send_insult_notification(message):
     await message.channel.send(notification)
 
 
+def polarity_reply(polarity: float) -> str:
+    """Determine the answer to send based on the polarity"""
+    if polarity > 0:
+        return "The conversation thread has a positive sentiment!"
+
+    if polarity < 0:
+        return "The conversation thread has a negative sentiment!"
+
+    return "The conversation thread has a neutral sentiment."
+
+
 @bot.command()
-async def analyze(ctx, message_id):
+async def analyze(ctx, message_id: str):
     """
     Retrieve the message from the given ID and analyze its polarity
 
@@ -75,17 +86,12 @@ async def analyze(ctx, message_id):
     # Sentiment polarity ranges from -1 to 1 (-1 being negative, 1 being positive)
     polarity = sentiment.polarity
 
-    if polarity > 0:
-        reply = "That sounds positive!"
-    elif polarity < 0:
-        reply = "That sounds negative!"
-    else:
-        reply = "That sounds neutral."
+    reply = polarity_reply(polarity)
 
     await ctx.send(reply)
 
 @bot.command()
-async def analyze_thread(ctx, thread_id):
+async def analyze_thread(ctx, thread_id: str):
     """Analyze the polarity of a thread"""
     try:
         channel = await bot.fetch_channel(int(thread_id))
@@ -112,12 +118,7 @@ async def analyze_thread(ctx, thread_id):
     average_polarity = sum(sentiments) / len(sentiments)
     print(f"thread polarity {thread_id}: {average_polarity}")
 
-    if average_polarity > 0:
-        reply = "The conversation thread has a positive sentiment!"
-    elif average_polarity < 0:
-        reply = "The conversation thread has a negative sentiment!"
-    else:
-        reply = "The conversation thread has a neutral sentiment."
+    reply = polarity_reply(average_polarity)
 
     await ctx.send(reply)
 
