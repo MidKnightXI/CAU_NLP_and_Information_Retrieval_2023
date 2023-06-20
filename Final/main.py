@@ -47,12 +47,11 @@ async def send_insult_notification(message):
     """
     Send a notification message to the channel where the message was deleted
     """
-    channel = message.channel
-
     author = message.author.mention
     content = message.content
     notification = f"**Message from {author} deleted:**\n~~{content}~~"
-    await channel.send(notification)
+
+    await message.channel.send(notification)
 
 
 @bot.command()
@@ -62,7 +61,6 @@ async def analyze(ctx, message_id):
 
     Send the polarity type of the message
     """
-
     try:
         message = await ctx.channel.fetch_message(int(message_id))
     except discord.NotFound:
@@ -72,8 +70,7 @@ async def analyze(ctx, message_id):
         await ctx.send("Invalid message ID.")
         return
 
-    text = message.content
-    sentiment = TextBlob(text).sentiment
+    sentiment = TextBlob(message.content).sentiment
 
     # Sentiment polarity ranges from -1 to 1 (-1 being negative, 1 being positive)
     polarity = sentiment.polarity
@@ -105,8 +102,7 @@ async def analyze_thread(ctx, thread_id):
 
     sentiments = []
     for message in messages:
-        text = message.content
-        sentiment = TextBlob(text).sentiment
+        sentiment = TextBlob(message.content).sentiment
         sentiments.append(sentiment.polarity)
 
     if len(sentiments) == 0:
